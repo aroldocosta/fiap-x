@@ -28,4 +28,4 @@ jobs:
 
       # 4. Executa a compilação e todos os testes unitários do monorepo
       - name: Build and Run Tests
-        run: ./mvnw clean test  # Ou 'mvn clean test' se não usar o wrapper
+      - run: mvn clean test
