@@ -1,0 +1,36 @@
+server:
+  port: ${SERVER_PORT:8084}
+
+spring:
+  application:
+    name: notification-service
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:notification-group}
+      auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    properties:
+      spring.json.trusted.packages: br.com.fiapx.common.event
+      spring.json.value.default.type: br.com.fiapx.common.event.VideoNotificationEvent
+      spring.json.add.type.headers: false
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:false}
+
+app:
+  kafka:
+    topics:
+      video-processed: ${KAFKA_TOPIC_VIDEO_PROCESSED:video-processed}
+      video-failed: ${KAFKA_TOPIC_VIDEO_FAILED:video-failed}
+  notification:
+    from-email: ${NOTIFICATION_FROM_EMAIL:no-reply@fiapx.local}

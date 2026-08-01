@@ -1,0 +1,33 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  application:
+    name: video-api-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/videodb}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: ${JPA_SHOW_SQL:false}
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    properties:
+      spring.json.add.type.headers: false
+
+app:
+  storage:
+    upload-dir: ${VIDEO_UPLOAD_DIR:/tmp/fiap-x/uploads}
+  kafka:
+    topics:
+      video-uploaded: ${KAFKA_TOPIC_VIDEO_UPLOADED:video-uploaded}
