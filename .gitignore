@@ -1,0 +1,27 @@
+.idea/
+
+# Maven
+target/
+.mvn/timing.properties
+
+# Java
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+*.nar
+*.ear
+hs_err_pid*
+replay_pid*
+
+# IDEs
+.project
+.classpath
+.settings/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

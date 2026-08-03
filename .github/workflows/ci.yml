@@ -1,0 +1,31 @@
+name: CI Pipeline - Build & Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configura o Java 21 com cache do Maven para acelerar o build
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # 3. Dá permissão de execução ao wrapper do Maven (se usar mvnw)
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw || true
+
+      # 4. Executa a compilação e todos os testes unitários do monorepo
+      - name: Build and Run Tests
+      - run: mvn clean test

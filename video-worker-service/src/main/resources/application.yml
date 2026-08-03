@@ -1,0 +1,31 @@
+server:
+  port: ${SERVER_PORT:8083}
+
+spring:
+  application:
+    name: video-worker-service
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:video-worker-group}
+      auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    properties:
+      spring.json.trusted.packages: br.com.fiapx.common.event
+      spring.json.value.default.type: br.com.fiapx.common.event.VideoProcessingEvent
+      spring.json.add.type.headers: false
+
+app:
+  ffmpeg:
+    binary-path: ${FFMPEG_BINARY_PATH:ffmpeg}
+  storage:
+    working-dir: ${VIDEO_WORK_DIR:/tmp/fiap-x/processing}
+  kafka:
+    topics:
+      video-uploaded: ${KAFKA_TOPIC_VIDEO_UPLOADED:video-uploaded}
+      video-processed: ${KAFKA_TOPIC_VIDEO_PROCESSED:video-processed}
+      video-failed: ${KAFKA_TOPIC_VIDEO_FAILED:video-failed}
