@@ -6,7 +6,9 @@ import java.util.UUID;
 public record VideoProcessingEvent(
         UUID videoId,
         UUID userId,
-        String filePath,
+        String userEmail,
+        String videoName,
+        String originalStoragePath,
         LocalDateTime createdAt
 ) {
 }

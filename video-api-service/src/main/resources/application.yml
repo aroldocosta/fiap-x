@@ -4,6 +4,15 @@ server:
 spring:
   application:
     name: video-api-service
+  cloud:
+    aws:
+      region:
+        static: us-east-1
+      credentials:
+        access-key: test
+        secret-key: test
+      sqs:
+        endpoint: ${AWS_SQS_ENDPOINT:http://localhost:4566}
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/videodb}
     username: ${DB_USERNAME:postgres}
@@ -17,17 +26,10 @@ spring:
       hibernate:
         format_sql: true
     show-sql: ${JPA_SHOW_SQL:false}
-  kafka:
-    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    properties:
-      spring.json.add.type.headers: false
 
 app:
   storage:
     upload-dir: ${VIDEO_UPLOAD_DIR:/tmp/fiap-x/uploads}
-  kafka:
-    topics:
-      video-uploaded: ${KAFKA_TOPIC_VIDEO_UPLOADED:video-uploaded}
+  sqs:
+    queues:
+      video-uploaded: ${AWS_SQS_VIDEO_UPLOADED_QUEUE:video-uploaded-queue}
