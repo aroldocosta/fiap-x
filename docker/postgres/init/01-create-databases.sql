@@ -1,0 +1,2 @@
+CREATE DATABASE fiapx_auth;
+CREATE DATABASE videodb;

@@ -1,0 +1,22 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="auth-service" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="graalvm-21" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <envs>
+      <env name="DB_URL" value="jdbc:postgresql://localhost:5432/fiapx_auth" />
+      <env name="DB_USER" value="postgres" />
+      <env name="DB_PASSWORD" value="postgres" />
+      <env name="JWT_SECRET" value="404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="br.com.fiapx.auth.AuthServiceApplication" />
+    <module name="auth-service" />
+    <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+      <option name="credential" />
+      <option name="region" />
+      <option name="useCurrentConnection" value="false" />
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

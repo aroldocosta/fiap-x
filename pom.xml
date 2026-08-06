@@ -21,6 +21,7 @@
     <properties>
         <java.version>21</java.version>
         <spring.boot.version>3.2.8</spring.boot.version>
+        <spring.cloud.aws.version>3.2.1</spring.cloud.aws.version>
         <jjwt.version>0.12.6</jjwt.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,6 +33,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.awspring.cloud</groupId>
+                <artifactId>spring-cloud-aws-dependencies</artifactId>
+                <version>${spring.cloud.aws.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
