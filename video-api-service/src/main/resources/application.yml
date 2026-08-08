@@ -2,6 +2,11 @@ server:
   port: ${SERVER_PORT:8082}
 
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB        # Tamanho máximo de um único arquivo (ex: 500MB ou 1GB)
+      max-request-size: 500MB     # Tamanho máximo total da requisição HTTP
   application:
     name: video-api-service
   datasource:

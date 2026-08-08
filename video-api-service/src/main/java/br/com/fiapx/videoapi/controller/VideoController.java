@@ -53,7 +53,7 @@ public class VideoController {
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> download(
             @AuthenticationPrincipal AuthenticatedUser user,
-            @PathVariable UUID id) {
+            @PathVariable("id") UUID id) {
         Resource resource = videoService.downloadZip(user, id);
         String filename = resource.getFilename() == null ? id + ".zip" : resource.getFilename();
 
