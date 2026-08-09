@@ -40,7 +40,7 @@ public class VideoService {
     public VideoService(VideoRepository videoRepository, SqsTemplate sqsTemplate, StorageProperties storageProperties) {
         this.videoRepository = videoRepository;
         this.sqsTemplate = sqsTemplate;
-        this.uploadRoot = Path.of(storageProperties.dir()).toAbsolutePath().normalize();
+        this.uploadRoot = Path.of(storageProperties.uploadDir()).toAbsolutePath().normalize();
     }
 
     @Transactional
@@ -120,7 +120,7 @@ public class VideoService {
     private Path storeOriginalFile(MultipartFile file, UUID userId, String originalFilename) {
         String extension = getExtension(originalFilename);
         String storedFilename = UUID.randomUUID() + extension;
-        Path targetDirectory = uploadRoot.resolve("originals").resolve(userId.toString());
+        Path targetDirectory = uploadRoot.resolve(userId.toString());
         Path targetFile = targetDirectory.resolve(storedFilename);
 
         try {

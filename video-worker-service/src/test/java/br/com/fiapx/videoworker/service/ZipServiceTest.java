@@ -18,6 +18,7 @@ class ZipServiceTest {
 
     @Test
     void shouldCreateZipWithGeneratedFrames() throws Exception {
+        Path uploadDir = tempDir.resolve("uploads");
         Path framesDir = tempDir.resolve("frames");
         Path zipsDir = tempDir.resolve("zips");
         Files.createDirectories(framesDir);
@@ -26,7 +27,7 @@ class ZipServiceTest {
 
         ZipService zipService = new ZipService(new ProcessingProperties(
                 new ProcessingProperties.Ffmpeg("ffmpeg"),
-                new ProcessingProperties.Storage(framesDir.toString(), zipsDir.toString())
+                new ProcessingProperties.Storage(uploadDir.toString(), framesDir.toString(), zipsDir.toString())
         ));
 
         Path zipPath = zipService.createZip(UUID.randomUUID(), framesDir);

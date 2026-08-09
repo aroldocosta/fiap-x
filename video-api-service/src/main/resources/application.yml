@@ -2,33 +2,20 @@ server:
   port: ${SERVER_PORT:8082}
 
 spring:
+  application:
+    name: video-api-service
   servlet:
     multipart:
       enabled: true
-      max-file-size: 500MB        # Tamanho máximo de um único arquivo (ex: 500MB ou 1GB)
-      max-request-size: 500MB     # Tamanho máximo total da requisição HTTP
-  application:
-    name: video-api-service
-  datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/fiapx_video}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+      max-file-size: 500MB
+      max-request-size: 500MB
   jpa:
     hibernate:
       ddl-auto: update
-  cloud:
-    aws:
-      region:
-        static: us-east-1
-      credentials:
-        access-key: test
-        secret-key: test
-      sqs:
-        endpoint: ${AWS_SQS_ENDPOINT:http://localhost:4566}
 
-jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-
+# Configurações de armazenamento da aplicação
 app:
-  upload:
-    dir: ${UPLOAD_DIR:./storage/uploads}
+  storage:
+    upload-dir: ${UPLOAD_DIR:./storage/uploads}
+    frames-dir: ${FRAMES_DIR:./storage/frames}
+    zips-dir: ${ZIPS_DIR:./storage/zips}

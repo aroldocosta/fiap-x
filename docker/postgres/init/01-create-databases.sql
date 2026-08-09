@@ -1,2 +1,3 @@
 CREATE DATABASE fiapx_auth;
-CREATE DATABASE videodb;
+CREATE DATABASE fiapx_video;
+CREATE DATABASE fiapx_notification;

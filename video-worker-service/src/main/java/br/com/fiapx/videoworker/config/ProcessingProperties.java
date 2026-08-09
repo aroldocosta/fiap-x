@@ -10,6 +10,6 @@ public record ProcessingProperties(
     public record Ffmpeg(String binaryPath) {
     }
 
-    public record Storage(String framesDir, String zipsDir) {
+    public record Storage(String uploadDir, String framesDir, String zipsDir) {
     }
 }
