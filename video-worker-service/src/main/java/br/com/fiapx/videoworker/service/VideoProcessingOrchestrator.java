@@ -1,8 +1,8 @@
 package br.com.fiapx.videoworker.service;
 
 import br.com.fiapx.common.config.SqsQueueNames;
-import br.com.fiapx.common.event.VideoNotificationEvent;
 import br.com.fiapx.common.event.VideoProcessingEvent;
+import br.com.fiapx.common.event.VideoStatusEvent;
 import br.com.fiapx.videoworker.config.ProcessingProperties;
 import br.com.fiapx.videoworker.domain.Video;
 import br.com.fiapx.videoworker.domain.VideoStatus;
@@ -10,6 +10,7 @@ import br.com.fiapx.videoworker.repository.VideoRepository;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,18 +32,21 @@ public class VideoProcessingOrchestrator {
     private final ZipService zipService;
     private final SqsTemplate sqsTemplate;
     private final Path framesRoot;
+    private final Environment environment;
 
     public VideoProcessingOrchestrator(
             VideoRepository videoRepository,
             FfmpegService ffmpegService,
             ZipService zipService,
             SqsTemplate sqsTemplate,
-            ProcessingProperties processingProperties) {
+            ProcessingProperties processingProperties,
+            Environment environment) {
         this.videoRepository = videoRepository;
         this.ffmpegService = ffmpegService;
         this.zipService = zipService;
         this.sqsTemplate = sqsTemplate;
         this.framesRoot = Path.of(processingProperties.storage().framesDir()).toAbsolutePath().normalize();
+        this.environment = environment;
     }
 
     public void process(VideoProcessingEvent event) {
@@ -55,10 +59,10 @@ public class VideoProcessingOrchestrator {
             ffmpegService.extractFrames(Path.of(event.originalStoragePath()).toAbsolutePath().normalize(), framesDirectory);
             Path zipPath = zipService.createZip(event.videoId(), framesDirectory);
             markFinished(video, zipPath);
-            publishNotification(video, "Video processing finished", "Your video has been processed successfully.");
+            publishStatus(video, VideoStatus.FINISHED, zipPath, null);
         } catch (Exception ex) {
             markError(event.videoId(), ex);
-            publishErrorNotification(event, ex);
+            publishStatus(event, truncateError(ex.getMessage()));
         } finally {
             deleteFramesDirectory(framesDirectory);
         }
@@ -88,30 +92,38 @@ public class VideoProcessingOrchestrator {
         });
     }
 
-    private void publishNotification(Video video, String subject, String message) {
-        sqsTemplate.send(to -> to.queue(SqsQueueNames.VIDEO_NOTIFICATION_QUEUE).payload(
-                new VideoNotificationEvent(
-                        video.getId(),
-                        video.getUserId(),
-                        video.getUserEmail(),
-                        subject,
-                        message,
-                        LocalDateTime.now()
-                )
-        ));
+    private void publishStatus(Video video, VideoStatus status, Path zipPath, String errorMessage) {
+        VideoStatusEvent event = new VideoStatusEvent(
+                video.getId(),
+                video.getUserId(),
+                video.getUserEmail(),
+                status.name(),
+                zipPath != null ? zipPath.toString() : null,
+                errorMessage,
+                LocalDateTime.now()
+        );
+        logLocalSqsSend(SqsQueueNames.VIDEO_STATUS_QUEUE, event);
+        sqsTemplate.send(to -> to.queue(SqsQueueNames.VIDEO_STATUS_QUEUE).payload(event));
     }
 
-    private void publishErrorNotification(VideoProcessingEvent event, Exception ex) {
-        sqsTemplate.send(to -> to.queue(SqsQueueNames.VIDEO_NOTIFICATION_QUEUE).payload(
-                new VideoNotificationEvent(
-                        event.videoId(),
-                        event.userId(),
-                        event.userEmail(),
-                        "Video processing failed",
-                        truncateError(ex.getMessage()),
-                        LocalDateTime.now()
-                )
-        ));
+    private void publishStatus(VideoProcessingEvent event, String errorMessage) {
+        VideoStatusEvent statusEvent = new VideoStatusEvent(
+                event.videoId(),
+                event.userId(),
+                event.userEmail(),
+                VideoStatus.ERROR.name(),
+                null,
+                errorMessage,
+                LocalDateTime.now()
+        );
+        logLocalSqsSend(SqsQueueNames.VIDEO_STATUS_QUEUE, statusEvent);
+        sqsTemplate.send(to -> to.queue(SqsQueueNames.VIDEO_STATUS_QUEUE).payload(statusEvent));
+    }
+
+    private void logLocalSqsSend(String queueName, Object payload) {
+        if (environment.matchesProfiles("local")) {
+            LOGGER.info("[LOCAL SQS SEND] queue={} payload={}", queueName, payload);
+        }
     }
 
     private String safeUserDirectory(UUID userId) {

@@ -10,6 +10,9 @@ import br.com.fiapx.videoapi.dto.VideoUploadResponseDTO;
 import br.com.fiapx.videoapi.repository.VideoRepository;
 import br.com.fiapx.videoapi.security.AuthenticatedUser;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -31,16 +34,23 @@ import java.util.UUID;
 @Service
 public class VideoService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoService.class);
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(".mp4", ".avi", ".mkv");
 
     private final VideoRepository videoRepository;
     private final SqsTemplate sqsTemplate;
     private final Path uploadRoot;
+    private final Environment environment;
 
-    public VideoService(VideoRepository videoRepository, SqsTemplate sqsTemplate, StorageProperties storageProperties) {
+    public VideoService(
+            VideoRepository videoRepository,
+            SqsTemplate sqsTemplate,
+            StorageProperties storageProperties,
+            Environment environment) {
         this.videoRepository = videoRepository;
         this.sqsTemplate = sqsTemplate;
         this.uploadRoot = Path.of(storageProperties.uploadDir()).toAbsolutePath().normalize();
+        this.environment = environment;
     }
 
     @Transactional
@@ -107,14 +117,27 @@ public class VideoService {
     }
 
     private void publishVideoUploaded(Video video) {
-        sqsTemplate.send(to -> to.queue(SqsQueueNames.VIDEO_UPLOADED_QUEUE).payload(new VideoProcessingEvent(
+        VideoProcessingEvent event = new VideoProcessingEvent(
                 video.getId(),
                 video.getUserId(),
                 video.getUserEmail(),
                 video.getTitle(),
                 video.getOriginalStoragePath(),
                 LocalDateTime.now()
-        )));
+        );
+
+        logLocalSqsSend(SqsQueueNames.VIDEO_UPLOADED_QUEUE, event);
+        sqsTemplate.send(to -> to.queue(SqsQueueNames.VIDEO_UPLOADED_QUEUE).payload(event));
+    }
+
+    private void logLocalSqsSend(String queueName, Object payload) {
+        if (isLocalProfileActive()) {
+            LOGGER.info("[LOCAL SQS SEND] queue={} payload={}", queueName, payload);
+        }
+    }
+
+    private boolean isLocalProfileActive() {
+        return environment.matchesProfiles("local");
     }
 
     private Path storeOriginalFile(MultipartFile file, UUID userId, String originalFilename) {

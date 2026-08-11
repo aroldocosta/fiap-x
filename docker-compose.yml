@@ -134,12 +134,22 @@ services:
     container_name: fiapx-notification-service
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:postgresql://fiapx-postgres:5432/fiapx_notification
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
       - AWS_SQS_ENDPOINT=http://localstack:4566
+      - AWS_SQS_VIDEO_STATUS_QUEUE=video-status-queue
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
       - MAIL_HOST=mailhog
       - MAIL_PORT=1025
+      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
     ports:
       - "8084:8084"
     depends_on:
+      postgres:
+        condition: service_healthy
       localstack:
         condition: service_healthy
       mailhog:
