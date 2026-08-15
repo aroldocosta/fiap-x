@@ -4,22 +4,14 @@ server:
 spring:
   application:
     name: video-worker-service
-  cloud:
-    aws:
-      region:
-        static: us-east-1
-      credentials:
-        access-key: test
-        secret-key: test
-      sqs:
-        endpoint: ${AWS_SQS_ENDPOINT:http://localhost:4566}
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 app:
   ffmpeg:
     binary-path: ${FFMPEG_BINARY_PATH:ffmpeg}
   storage:
-    working-dir: ${VIDEO_WORK_DIR:/tmp/fiap-x/processing}
-  sqs:
-    queues:
-      video-uploaded: ${AWS_SQS_VIDEO_UPLOADED_QUEUE:video-uploaded-queue}
-      video-status: ${AWS_SQS_VIDEO_STATUS_QUEUE:video-status-queue}
+    upload-dir: ${UPLOAD_DIR:./storage/uploads}
+    frames-dir: ${FRAMES_DIR:./storage/frames}
+    zips-dir: ${ZIPS_DIR:./storage/zips}

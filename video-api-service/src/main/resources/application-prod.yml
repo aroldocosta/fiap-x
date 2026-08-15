@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    # Em produção, obriga a passagem via variável de ambiente (AWS Secrets Manager/ECS Task)
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      # Em produção, o ideal costuma ser 'validate' para não alterar o banco sem migrations prévias
+      ddl-auto: validate
+  cloud:
+    aws:
+      sqs:
+        missing-queue-destination-behavior: ignore
+      endpoint: ${AWS_SQS_ENDPOINT}
+      region:
+        static: ${AWS_REGION:us-east-1}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID:test}
+        secret-key: ${AWS_SECRET_ACCESS_KEY:test}
+
+jwt:
+  # OBRIGA a definição de um segredo real e seguro via variável de ambiente em Prod
+  secret: ${JWT_SECRET}
+
+# Em ambiente de container de produção, o caminho padrão volta a ser /app
+app:
+  storage:
+    upload-dir: ${UPLOAD_DIR:/app/storage/uploads}
+    frames-dir: ${FRAMES_DIR:/app/storage/frames}
+    zips-dir: ${ZIPS_DIR:/app/storage/zips}

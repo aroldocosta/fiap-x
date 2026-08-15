@@ -52,6 +52,110 @@ services:
       retries: 5
       start_period: 10s
 
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    container_name: fiapx-auth-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:postgresql://fiapx-postgres:5432/fiapx_auth
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  video-api-service:
+    build:
+      context: .
+      dockerfile: video-api-service/Dockerfile
+    container_name: fiapx-video-api-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:postgresql://fiapx-postgres:5432/fiapx_video
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      - AWS_SQS_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - UPLOAD_DIR=/app/storage/uploads
+      - FRAMES_DIR=/app/storage/frames
+      - ZIPS_DIR=/app/storage/zips
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    volumes:
+      - shared-storage:/app/storage
+
+  video-worker-service:
+    build:
+      context: .
+      dockerfile: video-worker-service/Dockerfile
+    container_name: fiapx-video-worker-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:postgresql://fiapx-postgres:5432/fiapx_video
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - AWS_SQS_ENDPOINT=http://localstack:4566
+      - AWS_SQS_VIDEO_UPLOADED_QUEUE=video-uploaded-queue
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - UPLOAD_DIR=/app/storage/uploads
+      - FRAMES_DIR=/app/storage/frames
+      - ZIPS_DIR=/app/storage/zips
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    volumes:
+      - shared-storage:/app/storage
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: fiapx-notification-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:postgresql://fiapx-postgres:5432/fiapx_notification
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - AWS_SQS_ENDPOINT=http://localstack:4566
+      - AWS_SQS_VIDEO_STATUS_QUEUE=video-status-queue
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+      mailhog:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   localstack_data:
+  shared-storage:

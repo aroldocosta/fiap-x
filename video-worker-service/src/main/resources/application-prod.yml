@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    # Em prod, essas variáveis DEVEM vir do ambiente (AWS Secrets Manager ou ECS Task Definition)
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  cloud:
+    aws:
+      endpoint: ${AWS_SQS_ENDPOINT}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID:test}
+        secret-key: ${AWS_SECRET_ACCESS_KEY:test}
+      region:
+        static: ${AWS_REGION:us-east-1}
+      # Em prod, NÃO coloque credenciais aqui.
+      # Deixe o AWS SDK usar o IAM Role do container (IAM Task Role)
+      sqs:
+        # Em prod, o endpoint é gerenciado pela própria AWS, não precisa de URL customizada
+        queues:
+          video-uploaded: ${AWS_SQS_VIDEO_UPLOADED_QUEUE}
+        listener:
+          missing-queue-destination-behavior: ignore

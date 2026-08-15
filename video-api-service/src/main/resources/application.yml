@@ -4,32 +4,18 @@ server:
 spring:
   application:
     name: video-api-service
-  cloud:
-    aws:
-      region:
-        static: us-east-1
-      credentials:
-        access-key: test
-        secret-key: test
-      sqs:
-        endpoint: ${AWS_SQS_ENDPOINT:http://localhost:4566}
-  datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/videodb}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
-    driver-class-name: org.postgresql.Driver
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
-    open-in-view: false
-    properties:
-      hibernate:
-        format_sql: true
-    show-sql: ${JPA_SHOW_SQL:false}
+      ddl-auto: update
 
+# Configurações de armazenamento da aplicação
 app:
   storage:
-    upload-dir: ${VIDEO_UPLOAD_DIR:/tmp/fiap-x/uploads}
-  sqs:
-    queues:
-      video-uploaded: ${AWS_SQS_VIDEO_UPLOADED_QUEUE:video-uploaded-queue}
+    upload-dir: ${UPLOAD_DIR:./storage/uploads}
+    frames-dir: ${FRAMES_DIR:./storage/frames}
+    zips-dir: ${ZIPS_DIR:./storage/zips}

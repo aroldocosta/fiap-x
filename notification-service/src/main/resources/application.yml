@@ -4,13 +4,22 @@ server:
 spring:
   application:
     name: notification-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/fiapx_notification}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
   cloud:
     aws:
       region:
-        static: us-east-1
+        static: ${AWS_REGION:us-east-1}
       credentials:
-        access-key: test
-        secret-key: test
+        access-key: ${AWS_ACCESS_KEY_ID:test}
+        secret-key: ${AWS_SECRET_ACCESS_KEY:test}
       sqs:
         endpoint: ${AWS_SQS_ENDPOINT:http://localhost:4566}
   mail:
@@ -28,6 +37,9 @@ spring:
 app:
   sqs:
     queues:
-      video-notification: ${AWS_SQS_VIDEO_NOTIFICATION_QUEUE:video-notification-queue}
+      video-status: ${AWS_SQS_VIDEO_STATUS_QUEUE:video-status-queue}
   notification:
     from-email: ${NOTIFICATION_FROM_EMAIL:no-reply@fiapx.local}
+
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
