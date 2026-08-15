@@ -1,4 +1,4 @@
 # fiap-x
 Repositório designado para realização da fase 05 da pós graduação FIAP
 
-![Pasted image.png](../../../Documents/oficina48/parte-5/docs/Pasted%20image.png)
+<img width="4896" height="2316" alt="Modelagem Banco de dados" src="https://github.com/user-attachments/assets/31600545-3335-4c1d-8390-04993b835817" />
