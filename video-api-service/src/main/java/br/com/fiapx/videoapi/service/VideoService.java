@@ -106,6 +106,16 @@ public class VideoService {
         return new PathResource(zipPath);
     }
 
+    @Transactional
+    public void updateVideoStatus(UUID videoId, VideoStatus status, String zipStoragePath, String errorMessage) {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new VideoNotFoundException("Video not found"));
+
+        video.setStatus(status);
+        video.setZipStoragePath(zipStoragePath);
+        video.setErrorMessage(errorMessage);
+    }
+
     private VideoResponseDTO toResponse(Video video) {
         return new VideoResponseDTO(
                 video.getId(),

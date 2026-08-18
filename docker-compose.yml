@@ -84,6 +84,7 @@ services:
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
+      - AWS_SQS_VIDEO_STATUS_QUEUE=video-status-api-queue
       - UPLOAD_DIR=/app/storage/uploads
       - FRAMES_DIR=/app/storage/frames
       - ZIPS_DIR=/app/storage/zips
@@ -106,11 +107,13 @@ services:
     container_name: fiapx-video-worker-service
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - DB_URL=jdbc:postgresql://fiapx-postgres:5432/fiapx_video
+      - DB_URL=jdbc:postgresql://fiapx-postgres:5432/fiapx_video_worker
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - AWS_SQS_ENDPOINT=http://localstack:4566
       - AWS_SQS_VIDEO_UPLOADED_QUEUE=video-uploaded-queue
+      - AWS_SQS_VIDEO_STATUS_API_QUEUE=video-status-api-queue
+      - AWS_SQS_VIDEO_STATUS_NOTIFICATION_QUEUE=video-status-notification-queue
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -138,7 +141,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - AWS_SQS_ENDPOINT=http://localstack:4566
-      - AWS_SQS_VIDEO_STATUS_QUEUE=video-status-queue
+      - AWS_SQS_VIDEO_STATUS_QUEUE=video-status-notification-queue
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test

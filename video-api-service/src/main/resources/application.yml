@@ -15,6 +15,9 @@ spring:
 
 # Configurações de armazenamento da aplicação
 app:
+  sqs:
+    queues:
+      video-status: ${AWS_SQS_VIDEO_STATUS_QUEUE:video-status-api-queue}
   storage:
     upload-dir: ${UPLOAD_DIR:./storage/uploads}
     frames-dir: ${FRAMES_DIR:./storage/frames}
