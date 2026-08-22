@@ -13,6 +13,11 @@ spring:
       sqs:
         endpoint: http://localhost:4566 # Aponta diretamente para o LocalStack local
 
+app:
+  sqs:
+    queues:
+      video-status: ${AWS_SQS_VIDEO_STATUS_QUEUE:video-status-api-queue}
+
 jwt:
   # Secret fixo apenas para facilitá o desenvolvimento/testes locais no Postman
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
