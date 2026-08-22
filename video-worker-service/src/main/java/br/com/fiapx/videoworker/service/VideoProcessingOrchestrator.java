@@ -53,6 +53,9 @@ public class VideoProcessingOrchestrator {
             publishStatus(event, VideoStatus.FINISHED, zipPath, null);
         } catch (Exception ex) {
             publishStatus(event, VideoStatus.ERROR, null, truncateError(ex.getMessage()));
+            throw ex instanceof RuntimeException runtimeException
+                    ? runtimeException
+                    : new IllegalStateException("Video processing failed", ex);
         } finally {
             deleteFramesDirectory(framesDirectory);
         }
