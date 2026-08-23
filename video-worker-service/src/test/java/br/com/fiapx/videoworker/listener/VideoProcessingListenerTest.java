@@ -8,6 +8,7 @@ import org.springframework.core.env.Environment;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -29,6 +30,24 @@ class VideoProcessingListenerTest {
         );
 
         listener.handle(event);
+
+        verify(orchestrator).process(event);
+    }
+
+    @Test
+    void shouldNotRethrowWhenOrchestratorHandlesNonRetryableFailureInternally() {
+        VideoProcessingOrchestrator orchestrator = mock(VideoProcessingOrchestrator.class);
+        VideoProcessingListener listener = new VideoProcessingListener(orchestrator, mock(Environment.class));
+        VideoProcessingEvent event = new VideoProcessingEvent(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "user@fiapx.com",
+                "Video",
+                "/tmp/original.mp4",
+                LocalDateTime.now()
+        );
+
+        assertThatCode(() -> listener.handle(event)).doesNotThrowAnyException();
 
         verify(orchestrator).process(event);
     }

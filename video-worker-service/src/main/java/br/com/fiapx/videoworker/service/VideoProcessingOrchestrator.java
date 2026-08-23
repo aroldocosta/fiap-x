@@ -51,6 +51,8 @@ public class VideoProcessingOrchestrator {
             ffmpegService.extractFrames(Path.of(event.originalStoragePath()).toAbsolutePath().normalize(), framesDirectory);
             Path zipPath = zipService.createZip(event.videoId(), framesDirectory);
             publishStatus(event, VideoStatus.FINISHED, zipPath, null);
+        } catch (NonRetryableVideoProcessingException ex) {
+            publishStatus(event, VideoStatus.ERROR, null, truncateError(ex.getMessage()));
         } catch (Exception ex) {
             publishStatus(event, VideoStatus.ERROR, null, truncateError(ex.getMessage()));
             throw ex instanceof RuntimeException runtimeException
