@@ -29,7 +29,7 @@ public class FfmpegService {
             int exitCode = process.waitFor();
             if (exitCode != 0) {
                 String output = Files.readString(ffmpegLog);
-                throw new IllegalStateException("FFmpeg failed with exit code " + exitCode + ": " + output);
+                throw new NonRetryableVideoProcessingException("FFmpeg failed with exit code " + exitCode + ": " + output);
             }
             Files.deleteIfExists(ffmpegLog);
         } catch (IOException ex) {
