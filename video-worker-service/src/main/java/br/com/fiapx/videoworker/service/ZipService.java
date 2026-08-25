@@ -37,7 +37,7 @@ public class ZipService {
             }
 
             if (frameFiles.isEmpty()) {
-                throw new IllegalStateException("No frames generated for video " + videoId);
+                throw new NonRetryableVideoProcessingException("No frames generated for video " + videoId);
             }
 
             try (OutputStream outputStream = Files.newOutputStream(zipPath);
