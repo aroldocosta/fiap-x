@@ -152,3 +152,69 @@ flowchart TD
 | Sem persistência | 4 Bancos de dados PostgreSQL dedicados |
 | Sem feedback externo | Notificações por e-mail em tempo real (MailHog) |
 | CPU e I/O concorrendo no mesmo processo | Workers de processamento isolados e auto-escaláveis |
+
+---
+
+## 6. Guia de Configuração do CI/CD (GitHub Actions & Docker Hub)
+
+Este guia orienta os membros da equipe a configurarem seus respectivos forks no GitHub e contas no Docker Hub para que a esteira de CI/CD execute com sucesso.
+
+### 6.1. Configuração no Docker Hub
+
+1. **Criar uma conta no Docker Hub** (caso ainda não possua): [https://hub.docker.com/](https://hub.docker.com/).
+2. **Gerar um Personal Access Token (PAT)**:
+   - No Docker Hub, clique no seu perfil (canto superior direito) -> **Account Settings**.
+   - Acesse **Security** -> **Personal access tokens** -> **Generate new token**.
+   - **Descrição**: Ex. `github-actions-fiapx`.
+   - **Access permissions**: Selecione obrigatoriamente **Read & Write** (ou *Read, Write, Delete*).
+   - Copie o token gerado.
+3. *(Opcional)* **Criar os 4 repositórios públicos**:
+   - Se preferir criar previamente, crie com visibilidade **Public**:
+     - `<SEU_USUARIO>/auth-service`
+     - `<SEU_USUARIO>/video-api-service`
+     - `<SEU_USUARIO>/video-worker-service`
+     - `<SEU_USUARIO>/notification-service`
+
+---
+
+### 6.2. Configuração no Repositório GitHub (Fork)
+
+Acesse o seu Fork no GitHub e vá em **Settings** -> **Secrets and variables** -> **Actions**:
+
+#### A. Secrets do Repositório (Aba *Secrets*)
+Clique em **New repository secret** e cadastre:
+* **`DOCKERHUB_USERNAME`**: Seu nome de usuário no Docker Hub.
+* **`DOCKERHUB_TOKEN`**: O Personal Access Token (PAT) gerado no passo anterior.
+
+#### B. Variáveis do Repositório (Aba *Variables*)
+Clique em **New repository variable** e cadastre:
+* **`ENABLE_ECS_DEPLOY`**: Valor `false` (indica que a esteira deve publicar as imagens no Docker Hub em vez do AWS ECS).
+
+#### C. Habilitar Actions e Permissões de Escrita
+1. Vá em **Settings** -> **Actions** -> **General**.
+2. Em **Actions permissions**, selecione **Allow all actions and reusable workflows**.
+3. Em **Workflow permissions**, selecione **Read and write permissions**.
+4. Acesse a aba **Actions** no topo do repositório e clique em **"I understand my workflows, go ahead and enable them"** caso apareça o aviso de ações desabilitadas.
+
+---
+
+### 6.3. Fluxo de Execução e Branch Protection
+
+Como a regra do projeto proíbe commits diretos na branch `main`:
+
+1. **Desenvolvimento em branch de feature**:
+   ```bash
+   git checkout -b feat/sua-feature
+   # realize suas alterações...
+   git commit -m "feat: sua funcionalidade"
+   git push origin feat/sua-feature
+   ```
+2. **Pull Request**:
+   - Abra o PR apontando para a branch `main` do seu próprio Fork.
+   - O GitHub Actions executará automaticamente o job de CI (`build-and-test`).
+3. **Merge na `main`**:
+   - Após os testes passarem, realize o merge do PR.
+   - O merge disparará automaticamente a etapa de **CD** (`build-and-push-images`), gerando e publicando as imagens dos 4 microsserviços no seu Docker Hub com as tags `latest` e `sha-<hash>`.
+4. **Disparo Manual (Opcional)**:
+   - Na aba **Actions** -> selecione **FIAP-X CI/CD** -> clique em **Run workflow** para executar a esteira manualmente a qualquer momento.
+
